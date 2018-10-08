@@ -16,6 +16,7 @@ B-Tree exercise proposed by Data Structures and Algorithms professor, at [CESAR 
 7. B-Tree grows and shrinks from the root which is unlike Binary Search Tree. Binary Search Trees grow `downward` and also shrink from `downward`.
 8. Like other balanced Binary Search Trees, time complexity to search, insert and delete is `O(Logn)`.
 
+### Example
 Following is an example B-Tree of minimum degree `3`. Note that in practical B-Trees, the value of minimum degree is much more than `3`.
 
                                            3  30  60   
