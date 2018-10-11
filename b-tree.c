@@ -13,11 +13,9 @@ typedef struct node {
 } TREE;
 
 TREE *initTREE(void);
-int search(TREE *tree, int key);
-void insert(TREE *tree, int key);
+int search(TREE *, int);
+void insert(TREE *, int);
 void printTREE(TREE*);
-void inOrder(TREE*);
-void postOrder(TREE*);
  
 int main(void){
     int length;
