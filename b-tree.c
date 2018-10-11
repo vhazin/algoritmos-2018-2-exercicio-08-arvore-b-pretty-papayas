@@ -2,138 +2,136 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX 1024
+#define ORDER 10
 
-//Define type 'bool' as enumeration of FALSE (0), TRUE (1);
 typedef enum { FALSE, TRUE } bool;
+typedef struct node {
+    bool isLeaf;
+    int keyCounter;
+    int keyArray[ORDER];
+    struct node *children[ORDER-1];
+} NODE, TREE;
 
-//Define type 'Tree' as struct of {
-typedef struct node{
-  int isLeaf;
-  int keyAmmount;
-  int keyArray[MAX];
-  struct node *children[MAX+1];
-} Tree;
-
-//Create prototype functions
-Tree* initialize(void);
-int search(Tree *, int);
-void insert(Tree *, int);
-void printKeys(Tree *);
-void memFree(Tree *);
-
-//Main function
+TREE *initTREE(void);
+int search(TREE *tree, int key);
+void insert(TREE *tree, int key);
+void printTREE(TREE*);
+void inOrder(TREE*);
+void postOrder(TREE*);
+ 
 int main(void){
-  Tree *tree = initialize();
-  for(int iterator = 0; iterator < 10000000; iterator += 2) {
-      search(tree, iterator);
-      insert(tree, iterator);
-      search(tree, iterator+1);
-      search(tree, iterator);
-  }
-  memFree(tree);
-
-  return 0;
+    int length;
+    scanf("%d", &length);
+    int array[length];
+    TREE *root = initTREE();
+    for(int index = 0; index < length; index++){
+        int key;
+        scanf("%d", &key);
+        search(root, key);
+        insert(root, key);
+        search(root, key);
+    }
+    printTREE(root);
+    free(root);
+    return 0;
 }
 
-/* ----------  helper functions  ------------ */
-Tree* initialize(void){
-  Tree *child = (Tree *)malloc(sizeof(Tree));
+TREE* initTREE(void){
+  TREE *child = (TREE *)malloc(sizeof(TREE));
   child->isLeaf = TRUE;
-  child->keyAmmount = 0;
+  child->keyCounter = 0;
 
   return child;
 }
 
-void memFree(Tree *tree){
-  if(!tree->isLeaf){
-    for(int index = 0; index < tree->keyAmmount + 1; index++){
-      memFree(tree->children[index]);
-    }
-  }
-  free(tree);
-}
-
-static int searchKey(int keyAmmount, int *keyArray, int key){
-  int high = keyAmmount, low = -1, center;
-  while(low + 1 < high){
-    center = (low + high)/2;
+static int searchKey(int keyCounter, int *keyArray, int key){
+  int limit = keyCounter, lower = -1, center;
+  while(lower + 1 < limit){
+    center = (lower + limit)/2;
     if(keyArray[center] == key)
       return center;
     else if(keyArray[center] < key)
-      low = center;
+      lower = center;
     else
-      high = center;
+      limit = center;
   }
-  return high;
+  return limit;
 }
 
-int search(Tree *tree, int key){
+int search(TREE *tree, int key){
   int index;
-  if(!tree->keyAmmount)
+  if(!tree->keyCounter)
     return 0;
     
-  index = searchKey(tree->keyAmmount, tree->keyArray, key);
-  if(index < tree->keyAmmount && tree->keyArray[index] == key)
+  index = searchKey(tree->keyCounter, tree->keyArray, key);
+  if(index < tree->keyCounter && tree->keyArray[index] == key)
     return 1;
   else
     return(!tree->isLeaf && search(tree->children[index], key));
 }
 
-static Tree* split(Tree *tree, int *median, int key){
-  Tree *auxiliar;
+TREE* split(TREE *tree, int *median, int key){
+  TREE *auxiliar;
   int center, index;
 
-  index = searchKey(tree->keyAmmount, tree->keyArray, key);
-  if(index < tree->keyAmmount && tree->keyArray[index] == key)
+  index = searchKey(tree->keyCounter, tree->keyArray, key);
+  if(index < tree->keyCounter && tree->keyArray[index] == key)
     return 0;
 
   if(tree->isLeaf){
-    memmove(&tree->keyArray[index + 1], &tree->keyArray[index], sizeof(*(tree->keyArray)) * (tree->keyAmmount - index));
+    memmove(&tree->keyArray[index + 1], &tree->keyArray[index], sizeof(*(tree->keyArray)) * (tree->keyCounter - index));
     tree->keyArray[index] = key;
-    tree->keyAmmount++;
+    tree->keyCounter++;
   } else {
     auxiliar = split(tree->children[index], &center, key);
     if(auxiliar){
-      memmove(&tree->keyArray[index + 1], &tree->keyArray[index], sizeof(*(tree->keyArray)) * (tree->keyAmmount - index));
-      memmove(&tree->children[index + 2], &tree->children[index + 1], sizeof(*(tree->keyArray)) * (tree->keyAmmount - index));
+      memmove(&tree->keyArray[index + 1], &tree->keyArray[index], sizeof(*(tree->keyArray)) * (tree->keyCounter - index));
+      memmove(&tree->children[index + 2], &tree->children[index + 1], sizeof(*(tree->keyArray)) * (tree->keyCounter - index));
       tree->keyArray[index] = center;
       tree->children[index + 1] = auxiliar;
-      tree->keyAmmount++;
+      tree->keyCounter++;
     }
   }
 
-  if (tree->keyAmmount >= MAX){
-    center = tree->keyAmmount/2;
+  if (tree->keyCounter >= ORDER){
+    center = tree->keyCounter/2;
     *median = tree->keyArray[center];
 
-    auxiliar = (Tree *)malloc(sizeof(*auxiliar));
-    auxiliar->keyAmmount = tree->keyAmmount - center - 1;
+    auxiliar = (TREE *)malloc(sizeof(*auxiliar));
+    auxiliar->keyCounter = tree->keyCounter - center - 1;
     auxiliar->isLeaf = tree->isLeaf;
-    memmove(auxiliar->keyArray, &tree->keyArray[center + 1], sizeof(*(tree->keyArray)) * auxiliar->keyAmmount);
+    memmove(auxiliar->keyArray, &tree->keyArray[center + 1], sizeof(*(tree->keyArray)) * auxiliar->keyCounter);
 
     if (!tree->isLeaf)
-      memmove(auxiliar->children, &tree->children[center + 1], sizeof(*(tree->children)) * (auxiliar->keyAmmount + 1));
+      memmove(auxiliar->children, &tree->children[center + 1], sizeof(*(tree->children)) * (auxiliar->keyCounter + 1));
     
-    tree->keyAmmount = center;
+    tree->keyCounter = center;
     return auxiliar;
   }
   else
     return 0;
 }
 
-void insert(Tree *tree, int key){
+void insert(TREE *tree, int key){
   int median;
-  Tree *leftChild, *rightChild;
+  TREE *leftChild, *rightChild;
   rightChild = split(tree, &median, key);
 
   if(rightChild){
-    leftChild = (Tree *)malloc(sizeof(*leftChild));
+    leftChild = (TREE *)malloc(sizeof(*leftChild));
     memmove(leftChild, tree, sizeof(*tree));
-    tree->keyAmmount = 1;
-    tree->isLeaf = 0;
+    tree->keyCounter = 1;
+    tree->isLeaf = FALSE;
     tree->keyArray[0] = median;
     tree->children[0] = leftChild;
     tree->children[1] = rightChild;
   }
+}
+
+void printTREE(TREE* root){
+    if(root){
+        for(int index = 0; index < root->keyCounter; index++){
+            printf("%d ", root->keyArray[index]);
+        }
+    }
 }
