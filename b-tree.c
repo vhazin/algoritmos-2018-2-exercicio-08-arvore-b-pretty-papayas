@@ -25,26 +25,6 @@ void memFree(Tree *);
 //Main function
 int main(void){
   Tree *tree = initialize();
-  search(tree, 12);
-  insert(tree, 12);
-  search(tree, 12);
-  memFree(tree);
-
-  tree = initialize();
-  for(int iterator = 0; iterator < 100; iterator++) {
-      search(tree, iterator);
-      insert(tree, iterator);
-      search(tree, iterator);
-  }
-
-  for(int iterator = 0; iterator < 100; iterator++) {
-      search(tree, iterator);
-      insert(tree, iterator);
-      search(tree, iterator);
-  }    
-  memFree(tree);
-
-  tree = initialize();
   for(int iterator = 0; iterator < 10000000; iterator += 2) {
       search(tree, iterator);
       insert(tree, iterator);
