@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ORDER 10
+#define ORDER 19
 
 typedef enum { FALSE, TRUE } bool;
 typedef struct node {
@@ -10,7 +10,7 @@ typedef struct node {
     int keyCounter;
     int keyArray[ORDER];
     struct node *children[ORDER-1];
-} NODE, TREE;
+} TREE;
 
 TREE *initTREE(void);
 int search(TREE *tree, int key);
